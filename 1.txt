@@ -1,0 +1,285 @@
+#WINNER TREE
+import java.util.*;
+
+class Node {
+    int idx;
+    Node left, right;
+}
+
+public class Main {
+    static Node createNode(int idx) {
+        Node t = new Node();
+        t.left = t.right = null;
+        t.idx = idx;
+        return t;
+    }
+
+    static void traverseHeight(Node root, int[] arr, int[] res) {
+        if (root == null || (root.left == null && root.right == null))
+            return;
+        if (res[0] > arr[root.left.idx] && root.left.idx != root.idx) {
+            res[0] = arr[root.left.idx];
+            traverseHeight(root.right, arr, res);
+        } else if (res[0] > arr[root.right.idx] && root.right.idx != root.idx) {
+            res[0] = arr[root.right.idx];
+            traverseHeight(root.left, arr, res);
+        }
+    }
+
+    static void findSecondMin(int[] arr, int n) {
+        List<Node> li = new LinkedList<>();
+        Node root = null;
+        for (int i = 0; i < n; i += 2) {
+            Node t1 = createNode(i);
+            Node t2 = null;
+            if (i + 1 < n) {
+                t2 = createNode(i + 1);
+                root = (arr[i] < arr[i + 1]) ? createNode(i) : createNode(i + 1);
+                root.left = t1;
+                root.right = t2;
+                li.add(root);
+            } else
+                li.add(t1);
+        }
+        int lsize = li.size();
+        while (lsize != 1) {
+            int last = (lsize & 1) == 1 ? lsize - 2 : lsize - 1;
+            for (int i = 0; i < last; i += 2) {
+                Node f1 = li.remove(0);
+                Node f2 = li.remove(0);
+                root = (arr[f1.idx] < arr[f2.idx]) ? createNode(f1.idx) : createNode(f2.idx);
+                root.left = f1;
+                root.right = f2;
+                li.add(root);
+            }
+            if ((lsize & 1) == 1) {
+                li.add(li.get(0));
+                li.remove(0);
+            }
+            lsize = li.size();
+        }
+
+        int[] res = { Integer.MAX_VALUE };
+        traverseHeight(root, arr, res);
+        System.out.println("Minimum: " + arr[root.idx] + ", Second minimum: " + res[0]);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the number of elements:");
+        int n = scanner.nextInt();
+
+        int[] arr = new int[n];
+        System.out.println("Enter the array elements:");
+        for (int i = 0; i < n; i++)
+            arr[i] = scanner.nextInt();
+
+        findSecondMin(arr, n);
+    }
+}
+
+
+
+
+#K-arry heap
+
+public class Main {
+	public static void main(String[] args) {
+		final int capacity = 100;
+		int[] arr = new int[capacity];
+		arr[0] = 4;
+		arr[1] = 5;
+		arr[2] = 6;
+		arr[3] = 7;
+		arr[4] = 8;
+		arr[5] = 9;
+		arr[6] = 10;
+		int n = 7;
+		int k = 3;
+		buildHeap(arr, n, k);
+		System.out.println("Built Heap: ");
+		for (int i = 0; i < n; i++)
+			System.out.print(arr[i] + " ");
+		int element = 3;
+		insert(arr, n, k, element);
+		n++;
+		
+         System.out.println("Heap after insertion of " +element + ": ");
+		for (int i = 0; i < n; i++)
+			System.out.print(arr[i] + " ");
+		System.out.println("Extracted max is " +extractMax(arr,n,k));
+		n--;
+		System.out.println("\n\nHeap after extract max: ");
+		for (int i = 0; i < n; i++)
+			System.out.print(arr[i] + " ");
+	}
+	public static void buildHeap(int[] arr, int n, int k) {
+		for (int i = (n - 1) / k; i >= 0; i--)
+			restoreDown(arr, n, i, k);
+	}
+	public static void insert(int[] arr, int n, int k, int elem) {
+		arr[n - 1] = elem;
+		restoreUp(arr, n - 1, k);
+	}
+	public static int extractMax(int[] arr, int n, int k) {
+		int max = arr[0];arr[0] = arr[n - 1];
+		restoreDown(arr, n - 1, 0, k);
+		return max;
+	}
+      public static void restoreDown(int[] arr, int len, int index, int k){
+		int[] child = new int[k + 1];
+		while (true) {
+			for (int i = 1; i <= k; i++)
+				child[i]=(k*index+i) < len ? (k*index+i) : -1;
+			int maxChild = -1, maxChildIndex = 0;
+			for (int i = 1; i <= k; i++) {
+				if (child[i] != -1 && arr[child[i]] > maxChild) {
+					maxChildIndex = child[i];
+					maxChild = arr[child[i]];
+				}
+			}
+			if (maxChild == -1)
+				break;
+			if (arr[index] < arr[maxChildIndex])
+				swap(arr, index, maxChildIndex);
+			index = maxChildIndex;
+		}
+	}
+      public static void restoreUp(int[] arr, int index, int k) {
+		int parent = (index - 1) / k;
+		while (parent >= 0) {
+			if (arr[index] > arr[parent]) {
+				swap(arr, index, parent);
+				index = parent;
+				parent = (index - 1) / k;
+			} else
+				break;
+		}
+	}
+	public static void swap(int[] arr, int i, int j) {
+		int temp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = temp;
+	}
+}
+
+#HEAP SORT
+
+import java.util.*;
+
+public class Main {
+    public static void sort(int arr[]) {
+        int N = arr.length;
+        for (int i = N / 2 - 1; i >= 0; i--)
+            heapify(arr, N, i);
+        for (int i = N - 1; i > 0; i--) {
+            int temp = arr[0];
+            arr[0] = arr[i];
+            arr[i] = temp;
+            heapify(arr, i, 0);
+        }
+    }
+
+    static void heapify(int arr[], int N, int i) {
+        int largest = i;
+        int l = 2 * i + 1;
+        int r = 2 * i + 2;
+        if (l < N && arr[l] > arr[largest])
+            largest = l;
+        if (r < N && arr[r] > arr[largest])
+            largest = r;
+        if (largest != i) {
+            int swap = arr[i];
+            arr[i] = arr[largest];
+            arr[largest] = swap;
+            heapify(arr, N, largest);
+        }
+    }
+
+    public static void main(String args[]) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the number of elements:");
+        int n = scanner.nextInt();
+
+        int arr[] = new int[n];
+        System.out.println("Enter the array elements:");
+        for (int i = 0; i < n; i++)
+            arr[i] = scanner.nextInt();
+
+        sort(arr);
+        System.out.println("Sorted array is:");
+        for (int i = 0; i < n; i++)
+            System.out.print(arr[i] + " ");
+        System.out.println();
+    }
+}
+
+
+#TOPOLOGICAL SORT
+
+import java.util.*;
+
+public class TopologicalSort {
+    static void topologicalSortUtil(int v, List<List<Integer>> adj,
+                                    boolean[] visited,
+                                    Stack<Integer> stack) {
+        visited[v] = true;
+        for (int i : adj.get(v)) {
+            if (!visited[i])
+                topologicalSortUtil(i, adj, visited, stack);
+        }
+        stack.push(v);
+    }
+
+    static void topologicalSort(List<List<Integer>> adj, int V) {
+        Stack<Integer> stack = new Stack<>();
+        boolean[] visited = new boolean[V];
+        for (int i = 0; i < V; i++) {
+            if (!visited[i])
+                topologicalSortUtil(i, adj, visited, stack);
+        }
+
+        System.out.print("Topological sorting of the graph: ");
+        while (!stack.empty()) {
+            System.out.print(stack.pop() + " ");
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the number of vertices:");
+        int V = scanner.nextInt();
+
+        System.out.println("Enter the number of edges:");
+        int E = scanner.nextInt();
+
+        List<List<Integer>> adj = new ArrayList<>(V);
+        for (int i = 0; i < V; i++) {
+            adj.add(new ArrayList<>());
+        }
+
+        System.out.println("Enter the edges (source destination):");
+        for (int i = 0; i < E; i++) {
+            int source = scanner.nextInt();
+            int destination = scanner.nextInt();
+            adj.get(source).add(destination);
+        }
+
+        topologicalSort(adj, V);
+    }
+}
+Enter the number of vertices:
+5
+Enter the number of edges:
+6
+Enter the edges (source destination):
+0 1
+0 2
+1 3
+2 3
+3 4
+4 0
